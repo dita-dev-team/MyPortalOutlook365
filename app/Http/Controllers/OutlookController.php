@@ -29,15 +29,16 @@ class OutlookController
                 ->setReturnType(Model\User::class)->execute();
             echo 'User:' .$user->getDisplayName().'<br/>';
             $messageQueryParams = array(
-                "\$select" => "subject,receivedDateTime,from",
+                "\$select" => "subject,body,receivedDateTime,from",
                 "\$orderby" => "receivedDateTime DESC",
-                "\$top" => 10
+                "\$top" => 50
             );
             $getMessageUrl = '/me/mailfolders/inbox/messages?'.http_build_query($messageQueryParams);
             $messages = $graph->createRequest("GET",$getMessageUrl)->setReturnType(Model\Message::class)->execute();
-            foreach ($messages as $msg){
-                echo 'Message'.$msg->getSubject().'<br/>';
-            }
+            return view('mail',array(
+               'username' => $user->getDisplayName(),
+               'messages'=>$messages
+            ));
         }catch (GraphException $ex){
             echo 'Exception: '.$ex->getMessage();
         }
