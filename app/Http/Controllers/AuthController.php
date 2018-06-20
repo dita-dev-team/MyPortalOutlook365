@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TokenStore\TokenCache;
 use Illuminate\Http\Request;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use App\Utils\Utils;
@@ -50,17 +51,21 @@ class AuthController extends Controller
                 'urlResourceOwnerDetails' =>'',
                 'scopes' => env('OAUTH_SCOPES')
             ]);
+            /*Above oauth initialization is rendundant, and has been cover by the utils class*/
 
             try {
                 $utilsController = new Utils();
                 $accessToken = $utilsController->fetchCredentials()->getAccessToken('authorization_code',[
                    'code'=>$_GET['code']
                 ]);
+                $tokenCache = new TokenCache();
+                $tokenCache->storeTokens($accessToken->getToken(),$accessToken->getRefreshToken(),$accessToken->getExpires());
 
                 /*$accessToken = $oauthClient->getAccessToken('authorization_code',[
                    'code'=>$_GET['code']
                 ]);*/
-                echo 'Access token: '.$accessToken->getToken();
+                //echo 'Access token: '.$accessToken->getToken();
+                return redirect()->route('mail');
             }catch(IdentityProviderException $ex){
                 exit('Error Getting Tokens: '.$ex->getMessage());
             }
