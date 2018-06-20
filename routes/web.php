@@ -14,3 +14,10 @@
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/signin','AuthController@signin');
+
+Route::get('/authorize','AuthController@getToken');
+
+Route::group(['prefix' => 'api/v1'],function(){
+    Route::get('/mail','OutlookController@mail')->name('mail');
+});
